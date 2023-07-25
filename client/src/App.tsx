@@ -12,6 +12,7 @@ function App() {
   const matchFeedPosting = useMatch('/feed-posting');
   const matchFeedEditing = useMatch('/feed-posting/:feedId');
   const loadingFeed = useMatch('/loading');
+  console.log('test');
 
   return (
     <>
