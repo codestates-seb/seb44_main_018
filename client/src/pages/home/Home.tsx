@@ -39,6 +39,10 @@ export function Component() {
 
   const navigate = useNavigate();
   // Guest 요청
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ['hostFeed'] });
+  }, []);
+
   const {
     data: guestData,
     fetchNextPage: fetchNextPageGuest,
