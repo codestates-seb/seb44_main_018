@@ -1,8 +1,0 @@
-/*  /index.html  200
-
-  [[redirects]]
-  from = "/api/*"
-  to = "http://43.202.86.53:8080/:splat"
-  status = 200
-  force = true
-
