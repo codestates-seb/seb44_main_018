@@ -26,7 +26,7 @@ import {
   CommentContainer,
 } from './FeedPopUp.styled';
 
-export function FeedPopUp() {
+export function Component() {
   const accessToken = useReadLocalStorage('accessToken');
   const state = useContext(MemberIdContext);
   const navigate = useNavigate();
@@ -391,4 +391,4 @@ export function FeedPopUp() {
     );
 }
 
-// Component.displayName = 'FeedPopUp';
+Component.displayName = 'FeedPopUp';
