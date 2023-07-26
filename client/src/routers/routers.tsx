@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
 import App from '../App.tsx';
+import { FeedPopUp } from '../pages/feedPopUp/FeedPopUp.tsx';
 import Login from '../pages/login/Login.tsx';
 import NotFound from '../pages/notFound/NotFound.tsx';
 import Path from './paths.ts';
@@ -36,7 +37,7 @@ export const router = createBrowserRouter([
       },
       {
         path: Path.FeedPopUp,
-        lazy: () => import('../pages/feedPopUp/FeedPopUp'),
+        element: <FeedPopUp />,
       },
       {
         path: Path.CopyPopUp,
