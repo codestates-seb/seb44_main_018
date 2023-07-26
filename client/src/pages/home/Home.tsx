@@ -39,14 +39,15 @@ export function Component() {
   // Guest 요청
   const {
     data: guestData,
-    refetch: refetchGuest,
     fetchNextPage: fetchNextPageGuest,
     isSuccess: guestIsSucess,
     isError: guestIsError,
     isLoading: guestIsLoading,
   } = useInfiniteQuery({
     queryKey: ['guestFeed'],
-    staleTime: 180000,
+    staleTime: 600000,
+    refetchOnMount: false,
+    cacheTime: 600000,
     queryFn: ({ pageParam = 0 }) => {
       return getGuestFeedList(
         `${SERVER_URL}/feeds/all/list/random?page=${pageParam}&size=10`,
@@ -57,13 +58,12 @@ export function Component() {
       const totalLength = allPages.length;
       return allPages[totalLength - 1].length === 0 ? undefined : len;
     },
-    enabled: !!(accessToken === null),
+    enabled: accessToken === null,
   });
 
   // Host 요청
   const {
     data: hostData,
-    refetch: refetchHost,
     fetchNextPage: fetchNextPageHost,
     isSuccess: hostIsSucess,
     isError: hostIsError,
@@ -77,7 +77,9 @@ export function Component() {
         accessToken,
       );
     },
-    staleTime: 60000,
+    staleTime: 600000,
+    cacheTime: 600000,
+    refetchOnMount: false,
     getNextPageParam: (_, allPages) => {
       const len = allPages.length;
       const totalLength = allPages.length;
@@ -98,7 +100,6 @@ export function Component() {
   // 구독자가 있는 경우
   useEffect(() => {
     if (hostInview) {
-      refetchHost();
       fetchNextPageHost();
     }
   }, [hostInview]);
@@ -106,7 +107,6 @@ export function Component() {
   // 비로그인 및 구독자가 없는 경우
   useEffect(() => {
     if (guestInview) {
-      refetchGuest();
       fetchNextPageGuest();
     }
   }, [guestInview]);
@@ -321,7 +321,7 @@ export function Component() {
               {guestData.pages.map((page, index) => (
                 <React.Fragment key={index}>
                   {page.map((img: Feed) => (
-                    <div className="flex items-center gap-3" ref={hostRef}>
+                    <div className="flex items-center gap-3" ref={guestRef}>
                       <FeedCard
                         memberid={img.memberInfo.memberId}
                         username={img.memberInfo.nickname}
