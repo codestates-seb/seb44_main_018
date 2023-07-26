@@ -19,6 +19,7 @@ import FeedCard from '../../components/card/feed-card/FeedCard.tsx';
 import SideNav from '../../components/card/sidenav/SideNav.tsx';
 import LoadingComponent from '../../components/loading/LoadingComponent.tsx';
 import NoticeServerError from '../../components/notice/NoticeServerError.tsx';
+import Toast from '../../components/toast/Toast.tsx';
 import { Feed } from '../../types/feedTypes.ts';
 import CircleProgressBar from './CricleProgressBar.tsx';
 import { Container, ReBtn, TopBtn } from './Home.styled.tsx';
@@ -32,6 +33,7 @@ export function Component() {
     true,
   );
 
+  const [isToastOpen, setIsToastOpen] = useState<boolean>(false);
   const [isGuestOpen, setIsGuestOpen] = useState<boolean>(false);
   const [isScrolled, setIsScrolled] = useState<number>(0);
 
@@ -192,6 +194,16 @@ export function Component() {
             </Swiper>
           </PopupBackGround>
         )}
+        {isToastOpen && (
+          <div
+            className={
+              window.innerWidth < 420
+                ? 'fixed top-5 right-2 z-50'
+                : 'fixed top-28 right-8 z-50'
+            }>
+            <Toast />
+          </div>
+        )}
         {isScrolled > 500 && <TopBtn onClick={handleTopScroll}>↑</TopBtn>}
         {window.innerWidth > 500 && (
           <div className="w-screen flex flex-col gap-16 justify-center items-center my-12">
@@ -213,6 +225,7 @@ export function Component() {
                       likes={img.likes}
                       like={img.isLike ? 'true' : 'false'}
                       guesthandler={() => setIsGuestOpen(true)}
+                      toasthandler={setIsToastOpen}
                     />
                   </div>
                 ))}
@@ -276,6 +289,7 @@ export function Component() {
                           likes={img.likes}
                           like={img.isLike ? 'true' : 'false'}
                           guesthandler={() => setIsGuestOpen(true)}
+                          toasthandler={setIsToastOpen}
                         />
                       </div>
                     </SwiperSlide>
@@ -304,6 +318,16 @@ export function Component() {
       guestIsSucess &&
       !accessToken && (
         <>
+          {isToastOpen && (
+            <div
+              className={
+                window.innerWidth < 420
+                  ? 'fixed top-5 right-2 z-50'
+                  : 'fixed top-28 right-8 z-50'
+              }>
+              <Toast />
+            </div>
+          )}
           {isGuestOpen && (
             <Popup
               title="로그인을 해주세요."
@@ -336,6 +360,7 @@ export function Component() {
                         likes={img.likes}
                         like={img.isLike ? 'true' : 'false'}
                         guesthandler={() => setIsGuestOpen(true)}
+                        toasthandler={setIsToastOpen}
                       />
                     </div>
                   ))}
@@ -385,6 +410,7 @@ export function Component() {
                             likes={img.likes}
                             like={img.isLike ? 'true' : 'false'}
                             guesthandler={() => setIsGuestOpen(true)}
+                            toasthandler={setIsToastOpen}
                           />
                         </div>
                       </SwiperSlide>
