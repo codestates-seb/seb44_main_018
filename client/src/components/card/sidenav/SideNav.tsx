@@ -70,7 +70,7 @@ export default function SideNav({
   const handleClickShare = async () => {
     try {
       await navigator.clipboard.writeText(
-        `https://share-petment.netlify.app/home/${feedid}`,
+        `https://sharepetment.site/home/${feedid}`,
       );
       if (toasthandler) {
         toasthandler(true);
