@@ -46,6 +46,7 @@ export function Component() {
     isLoading: guestIsLoading,
   } = useInfiniteQuery({
     queryKey: ['guestFeed'],
+    staleTime: 180000,
     queryFn: ({ pageParam = 0 }) => {
       return getGuestFeedList(
         `${SERVER_URL}/feeds/all/list/random?page=${pageParam}&size=10`,
