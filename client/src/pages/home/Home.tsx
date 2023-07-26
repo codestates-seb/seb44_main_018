@@ -21,7 +21,7 @@ import LoadingComponent from '../../components/loading/LoadingComponent.tsx';
 import NoticeServerError from '../../components/notice/NoticeServerError.tsx';
 import { Feed } from '../../types/feedTypes.ts';
 import CircleProgressBar from './CricleProgressBar.tsx';
-import { Container, ReBtn } from './Home.styled.tsx';
+import { Container, ReBtn, TopBtn } from './Home.styled.tsx';
 import '../../common/carousel/carousel.css';
 
 export function Component() {
@@ -33,6 +33,7 @@ export function Component() {
   );
 
   const [isGuestOpen, setIsGuestOpen] = useState<boolean>(false);
+  const [isScrolled, setIsScrolled] = useState<number>(0);
 
   const navigate = useNavigate();
   // Guest 요청
@@ -45,6 +46,7 @@ export function Component() {
     isLoading: guestIsLoading,
   } = useInfiniteQuery({
     queryKey: ['guestFeed'],
+    staleTime: 180000,
     queryFn: ({ pageParam = 0 }) => {
       return getGuestFeedList(
         `${SERVER_URL}/feeds/all/list/random?page=${pageParam}&size=10`,
@@ -108,6 +110,16 @@ export function Component() {
       fetchNextPageGuest();
     }
   }, [guestInview]);
+
+  const handleScroll = () => setIsScrolled(window.scrollY);
+  const handleTopScroll = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // 로딩화면 보여주기
   if (guestIsLoading && hostIsLoading) {
@@ -180,100 +192,76 @@ export function Component() {
             </Swiper>
           </PopupBackGround>
         )}
-        <Container>
-          <Swiper
-            direction={'vertical'}
-            slidesPerView={
-              window.innerWidth < 500
-                ? window.innerWidth < 400
-                  ? 1
-                  : 1.5
-                : 1.1
-            }
-            mousewheel={true}
-            modules={[Mousewheel, Pagination]}
-            className={
-              window.innerWidth < 500
-                ? window.innerWidth < 400
-                  ? 'w-full h-full flex flex-col items-center justify-center'
-                  : 'w-full h-full flex flex-col items-center justify-center mb-30'
-                : 'w-full h-full flex flex-col items-center justify-center'
-            }>
+        {isScrolled > 500 && <TopBtn onClick={handleTopScroll}>↑</TopBtn>}
+        {window.innerWidth > 500 && (
+          <div className="w-screen flex flex-col gap-16 justify-center items-center my-12">
             {hostData.pages.map((page, index) => (
               <React.Fragment key={index}>
                 {page.map((img: Feed) => (
-                  <SwiperSlide
-                    className="w-96 max-sm:w-full max-sm:h-full"
-                    key={img.feedId}>
-                    <div
-                      className="flex justify-center items-center gap-5 max-sm:flex-col"
-                      ref={hostRef}>
-                      <FeedCard
-                        memberid={img.memberInfo.memberId}
-                        username={img.memberInfo.nickname}
-                        context={img.content}
-                        userimg={img.memberInfo.imageURL}
-                        images={img.images}
-                        guesthandler={() => setIsGuestOpen(true)}
-                      />
-                      <SideNav
-                        feedid={img.feedId}
-                        direction={window.innerWidth < 640 ? 'row' : 'col'}
-                        likes={img.likes}
-                        like={img.isLike ? 'true' : 'false'}
-                        guesthandler={() => setIsGuestOpen(true)}
-                      />
-                    </div>
-                  </SwiperSlide>
+                  <div className="flex items-center gap-3" ref={hostRef}>
+                    <FeedCard
+                      memberid={img.memberInfo.memberId}
+                      username={img.memberInfo.nickname}
+                      context={img.content}
+                      userimg={img.memberInfo.imageURL}
+                      images={img.images}
+                      guesthandler={() => setIsGuestOpen(true)}
+                    />
+                    <SideNav
+                      feedid={img.feedId}
+                      direction={window.innerWidth < 640 ? 'row' : 'col'}
+                      likes={img.likes}
+                      like={img.isLike ? 'true' : 'false'}
+                      guesthandler={() => setIsGuestOpen(true)}
+                    />
+                  </div>
                 ))}
               </React.Fragment>
             ))}
-          </Swiper>
-          {hostData.pages[hostData.pages.length - 1].length === 0 && (
-            <ReBtn
-              className={
-                window.innerWidth < 430 ? 'bottom-[80px]' : 'bottom-10'
-              }
-              onClick={() => {
-                refetch();
-                window.location.reload();
-              }}>
-              피드 다시 받아오기
-            </ReBtn>
-          )}
-        </Container>
-      </>
-    );
-  } else {
-    return (
-      guestIsSucess &&
-      !accessToken && (
-        <>
-          {isGuestOpen && (
-            <Popup
-              title="로그인을 해주세요."
-              isgreen={['true']}
-              btnsize={['md']}
-              buttontext={['로그인하러가기']}
-              countbtn={1}
-              handler={[() => navigate('/')]}
-              popupcontrol={() => setIsGuestOpen(false)}
-            />
-          )}
+
+            {hostData.pages[hostData.pages.length - 1].length === 0 && (
+              <ReBtn
+                className={
+                  window.innerWidth < 430 ? 'bottom-[80px]' : 'bottom-10'
+                }
+                onClick={() => {
+                  refetch();
+                  window.location.reload();
+                }}>
+                피드 다시 받아오기
+              </ReBtn>
+            )}
+          </div>
+        )}
+        {window.innerWidth < 500 && (
           <Container>
             <Swiper
               direction={'vertical'}
-              slidesPerView={window.innerWidth < 400 ? 1 : 1.1}
+              slidesPerView={
+                window.innerWidth < 500
+                  ? window.innerWidth < 400
+                    ? 1
+                    : 1.5
+                  : 1.1
+              }
               mousewheel={true}
               modules={[Mousewheel, Pagination]}
-              className="w-full h-full flex flex-col items-center justify-center">
-              {guestData.pages.map((page, index) => (
+              className={
+                window.innerWidth < 500
+                  ? window.innerWidth < 400
+                    ? 'w-full h-full flex flex-col items-center justify-center'
+                    : 'w-full h-full flex flex-col items-center justify-center mb-30'
+                  : 'w-full h-full flex flex-col items-center justify-center'
+              }>
+              {hostData.pages.map((page, index) => (
                 <React.Fragment key={index}>
                   {page.map((img: Feed) => (
-                    <SwiperSlide className="w-96" key={img.feedId}>
+                    <SwiperSlide
+                      className="w-96 max-sm:w-full max-sm:h-full"
+                      key={img.feedId}>
                       <div
                         className="flex justify-center items-center gap-5 max-sm:flex-col"
-                        ref={guestRef}>
+                        ref={hostRef}>
                         <FeedCard
                           memberid={img.memberInfo.memberId}
                           username={img.memberInfo.nickname}
@@ -295,7 +283,7 @@ export function Component() {
                 </React.Fragment>
               ))}
             </Swiper>
-            {guestData.pages[guestData.pages.length - 1].length === 0 && (
+            {hostData.pages[hostData.pages.length - 1].length === 0 && (
               <ReBtn
                 className={
                   window.innerWidth < 430 ? 'bottom-[80px]' : 'bottom-10'
@@ -308,6 +296,116 @@ export function Component() {
               </ReBtn>
             )}
           </Container>
+        )}
+      </>
+    );
+  } else {
+    return (
+      guestIsSucess &&
+      !accessToken && (
+        <>
+          {isGuestOpen && (
+            <Popup
+              title="로그인을 해주세요."
+              isgreen={['true']}
+              btnsize={['md']}
+              buttontext={['로그인하러가기']}
+              countbtn={1}
+              handler={[() => navigate('/')]}
+              popupcontrol={() => setIsGuestOpen(false)}
+            />
+          )}
+          {isScrolled > 500 && <TopBtn onClick={handleTopScroll}>↑</TopBtn>}
+          {window.innerWidth > 500 && (
+            <div className="w-screen flex flex-col gap-16 justify-center items-center my-12">
+              {guestData.pages.map((page, index) => (
+                <React.Fragment key={index}>
+                  {page.map((img: Feed) => (
+                    <div className="flex items-center gap-3" ref={hostRef}>
+                      <FeedCard
+                        memberid={img.memberInfo.memberId}
+                        username={img.memberInfo.nickname}
+                        context={img.content}
+                        userimg={img.memberInfo.imageURL}
+                        images={img.images}
+                        guesthandler={() => setIsGuestOpen(true)}
+                      />
+                      <SideNav
+                        feedid={img.feedId}
+                        direction={window.innerWidth < 640 ? 'row' : 'col'}
+                        likes={img.likes}
+                        like={img.isLike ? 'true' : 'false'}
+                        guesthandler={() => setIsGuestOpen(true)}
+                      />
+                    </div>
+                  ))}
+                </React.Fragment>
+              ))}
+
+              {guestData.pages[guestData.pages.length - 1].length === 0 && (
+                <ReBtn
+                  className={
+                    window.innerWidth < 430 ? 'bottom-[80px]' : 'bottom-10'
+                  }
+                  onClick={() => {
+                    refetch();
+                    window.location.reload();
+                  }}>
+                  피드 다시 받아오기
+                </ReBtn>
+              )}
+            </div>
+          )}
+          {window.innerWidth < 500 && (
+            <Container>
+              <Swiper
+                direction={'vertical'}
+                slidesPerView={window.innerWidth < 400 ? 1 : 1.1}
+                mousewheel={true}
+                modules={[Mousewheel, Pagination]}
+                className="w-full h-full flex flex-col items-center justify-center">
+                {guestData.pages.map((page, index) => (
+                  <React.Fragment key={index}>
+                    {page.map((img: Feed) => (
+                      <SwiperSlide className="w-96" key={img.feedId}>
+                        <div
+                          className="flex justify-center items-center gap-5 max-sm:flex-col"
+                          ref={guestRef}>
+                          <FeedCard
+                            memberid={img.memberInfo.memberId}
+                            username={img.memberInfo.nickname}
+                            context={img.content}
+                            userimg={img.memberInfo.imageURL}
+                            images={img.images}
+                            guesthandler={() => setIsGuestOpen(true)}
+                          />
+                          <SideNav
+                            feedid={img.feedId}
+                            direction={window.innerWidth < 640 ? 'row' : 'col'}
+                            likes={img.likes}
+                            like={img.isLike ? 'true' : 'false'}
+                            guesthandler={() => setIsGuestOpen(true)}
+                          />
+                        </div>
+                      </SwiperSlide>
+                    ))}
+                  </React.Fragment>
+                ))}
+              </Swiper>
+              {guestData.pages[guestData.pages.length - 1].length === 0 && (
+                <ReBtn
+                  className={
+                    window.innerWidth < 430 ? 'bottom-[80px]' : 'bottom-10'
+                  }
+                  onClick={() => {
+                    refetch();
+                    window.location.reload();
+                  }}>
+                  피드 다시 받아오기
+                </ReBtn>
+              )}
+            </Container>
+          )}
         </>
       )
     );
