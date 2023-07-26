@@ -74,7 +74,6 @@ export function Component() {
     isSuccess: hostIsSucess,
     isError: hostIsError,
     isLoading: hostIsLoading,
-    refetch,
   } = useInfiniteQuery({
     queryKey: ['hostFeed'],
     queryFn: ({ pageParam = 0 }) => {
@@ -93,8 +92,9 @@ export function Component() {
     },
     enabled: !!accessToken,
 
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ['contextApi'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contextApi'] });
+    },
   });
 
   // 무한 쿼리 구현
@@ -242,7 +242,6 @@ export function Component() {
                   window.innerWidth < 430 ? 'bottom-[80px]' : 'bottom-10'
                 }
                 onClick={() => {
-                  refetch();
                   window.location.reload();
                 }}>
                 피드 다시 받아오기
@@ -307,7 +306,6 @@ export function Component() {
                   window.innerWidth < 430 ? 'bottom-[80px]' : 'bottom-10'
                 }
                 onClick={() => {
-                  refetch();
                   window.location.reload();
                 }}>
                 피드 다시 받아오기
@@ -377,7 +375,6 @@ export function Component() {
                     window.innerWidth < 430 ? 'bottom-[80px]' : 'bottom-10'
                   }
                   onClick={() => {
-                    refetch();
                     window.location.reload();
                   }}>
                   피드 다시 받아오기
@@ -428,7 +425,6 @@ export function Component() {
                     window.innerWidth < 430 ? 'bottom-[80px]' : 'bottom-10'
                   }
                   onClick={() => {
-                    refetch();
                     window.location.reload();
                   }}>
                   피드 다시 받아오기
